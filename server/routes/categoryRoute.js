@@ -1,5 +1,5 @@
 const express = require("express");
-const Category = require("../models/categoryModel");
+const { Category } = require("../models/categoryModel");
 const ObjectId = require("mongoose").Types.ObjectId;
 
 const router = express.Router();

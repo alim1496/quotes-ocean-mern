@@ -1,5 +1,5 @@
 const express = require("express");
-const Author = require("../models/authorModel");
+const { Author } = require("../models/authorModel");
 const ObjectId = require("mongoose").Types.ObjectId;
 
 const router = express.Router();

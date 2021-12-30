@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const config = require("./config");
 const categoryRoute = require("./routes/categoryRoute");
 const authorRoute = require("./routes/authorRoute");
+const quoteRoute = require("./routes/quoteRoute");
 
 const app = express();
 
@@ -12,6 +13,7 @@ app.get("/", (req, res) => res.send("Hello all"));
 
 app.use("/api/categories", categoryRoute);
 app.use("/api/authors", authorRoute);
+app.use("/api/quotes", quoteRoute);
 
 mongoose.connect(config.MONGODB_URL, {
     useNewUrlParser: true,
