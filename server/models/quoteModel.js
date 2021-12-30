@@ -1,6 +1,4 @@
 const mongoose = require("mongoose");
-const { categorySchema } = require("../models/categoryModel");
-const { authorSchema } = require("./authorModel");
 
 const quoteSchema = new mongoose.Schema({
     title: {
@@ -13,11 +11,13 @@ const quoteSchema = new mongoose.Schema({
         default: false
     },
     category: {
-        type: categorySchema,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Category",
         required: true
     },
     author: {
-        type: authorSchema,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Author",
         required: true
     },
     status: {
