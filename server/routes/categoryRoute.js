@@ -36,4 +36,14 @@ router.post("/", async (req, res) => {
     }
 });
 
+router.patch("/:id", (req, res) => {
+    if (!ObjectId.isValid(req.params.id)) {
+        return res.status(400).send({ message: "Invalid Category ID"});
+    };
+    Category
+        .findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true })
+        .then((category) => res.send(category))
+        .catch((error) => res.status(500).send({ message: error }));
+});
+
 module.exports = router;

@@ -38,4 +38,14 @@ router.post("/", async (req, res) => {
     }
 });
 
+router.patch("/:id", (req, res) => {
+    if (!ObjectId.isValid(req.params.id)) {
+        return res.status(400).send({ message: "Invalid Quote ID"});
+    };
+    Quote
+        .findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true })
+        .then((quote) => res.send(quote))
+        .catch((error) => res.status(500).send({ message: error }));
+});
+
 module.exports = router;
