@@ -1,15 +1,16 @@
 const express = require("express");
 const Quote = require("../models/quoteModel");
 const ObjectId = require("mongoose").Types.ObjectId;
+const { isAuth, isAdmin } = require("../auth");
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get("/", isAuth, isAdmin, async (req, res) => {
     const quotes = await Quote.find();
     res.send(quotes);
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", isAuth, isAdmin, async (req, res) => {
     if (!ObjectId.isValid(req.params.id)) {
         return res.status(400).send({ message: "Invalid Quote ID"});
     };
@@ -22,7 +23,7 @@ router.get("/:id", async (req, res) => {
     }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", isAuth, isAdmin, async (req, res) => {
     const quote = new Quote({
         title: req.body.title,
         featured: req.body.featured,
@@ -38,7 +39,7 @@ router.post("/", async (req, res) => {
     }
 });
 
-router.patch("/:id", (req, res) => {
+router.patch("/:id", isAuth, isAdmin, (req, res) => {
     if (!ObjectId.isValid(req.params.id)) {
         return res.status(400).send({ message: "Invalid Quote ID"});
     };

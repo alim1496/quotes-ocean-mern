@@ -7,6 +7,7 @@ const config = require("./config");
 const categoryRoute = require("./routes/categoryRoute");
 const authorRoute = require("./routes/authorRoute");
 const quoteRoute = require("./routes/quoteRoute");
+const userRoute = require("./routes/userRoute");
 const User = require("./models/userModel");
 
 const app = express();
@@ -30,6 +31,7 @@ passport.use(new LocalStrategy(User.authenticate()));
 app.use("/api/categories", categoryRoute);
 app.use("/api/authors", authorRoute);
 app.use("/api/quotes", quoteRoute);
+app.use("/api/users", userRoute);
 
 mongoose.connect(config.MONGODB_URL, {
     useNewUrlParser: true,

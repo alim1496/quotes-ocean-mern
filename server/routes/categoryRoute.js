@@ -1,16 +1,17 @@
 const express = require("express");
 const Category = require("../models/categoryModel");
 const ObjectId = require("mongoose").Types.ObjectId;
+const { isAuth, isAdmin } = require("../auth");
 
 const router = express.Router();
 
 
-router.get("/", async (req, res) => {
+router.get("/", isAuth, isAdmin, async (req, res) => {
     const categories = await Category.find();
     res.send(categories);
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", isAuth, isAdmin, async (req, res) => {
     if (!ObjectId.isValid(req.params.id)) {
         return res.status(400).send({ message: "Invalid Category ID"});
     };
@@ -23,7 +24,7 @@ router.get("/:id", async (req, res) => {
     }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", isAuth, isAdmin, async (req, res) => {
     const category = new Category({
         name: req.body.name,
         weight: req.body.weight
@@ -36,7 +37,7 @@ router.post("/", async (req, res) => {
     }
 });
 
-router.patch("/:id", (req, res) => {
+router.patch("/:id", isAuth, isAdmin, (req, res) => {
     if (!ObjectId.isValid(req.params.id)) {
         return res.status(400).send({ message: "Invalid Category ID"});
     };
