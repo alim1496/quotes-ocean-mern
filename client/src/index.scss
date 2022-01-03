@@ -1,0 +1,35 @@
+@import url("https://unpkg.com/spectre.css/dist/spectre.min.css");
+
+.common-margin {
+    padding-top: 80px;
+}
+
+.common-list {
+    list-style-type: none;
+    display: flex;
+    flex-flow: row wrap;
+}
+
+.max-200 {
+    width: 200px;
+}
+
+.login-container {
+  font-family: "baloo";
+  border: 1px solid #f8f8f8;
+  border-radius: 10px;
+  padding: 40px 60px;
+  background: #a7cee4;
+  margin-top: 60px;
+  box-shadow: 0 0 10px #f2f2f2;
+  input {
+    margin-bottom: 10px;
+  }
+  .padded {
+    margin-top: 5px;
+    padding: 5px 20px;
+    &:hover {
+      opacity: 0.75;
+    }
+  }
+}
