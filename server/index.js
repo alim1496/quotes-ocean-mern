@@ -2,7 +2,9 @@ const express = require("express");
 const mongoose = require("mongoose");
 const passport = require("passport");
 const session = require('express-session');
+const cors = require("cors");
 const LocalStrategy = require('passport-local').Strategy;
+
 const config = require("./config");
 const categoryRoute = require("./routes/categoryRoute");
 const authorRoute = require("./routes/authorRoute");
@@ -14,6 +16,7 @@ const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cors());
 app.get("/", (req, res) => res.send("Hello all"));
 
 app.use(session({
