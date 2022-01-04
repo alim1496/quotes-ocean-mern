@@ -19,14 +19,24 @@ const Categories = () => {
             });
     };
 
-    const postCategory = () => {
+    const postCategory = (e) => {
+        if (!name) return;
+        const { target } = e;
+        const data = { name };
+        if (weight) data.weight = weight;
+        target.classList.add("loading");
         axios
-            .post("/api/categories", { name, weight }, config)
-            .then(({ data }) => {
+            .post("/api/categories", data, config)
+            .then(() => {
+                target.classList.remove("loading");
                 setName("");
                 setWeight("");
                 setCategories([]);
                 fetchCategory();
+            })
+            .catch(error => {
+                alert(error);
+                target.classList.remove("loading");
             });
     };
 
@@ -39,7 +49,7 @@ const Categories = () => {
                         <input type="text" placeholder="Enter name" className="form-input" value={name} onChange={(e) => setName(e.target.value)} />
                     </div>
                     <div class="col-3 col-sm-12 mr-2">
-                        <input type="text" placeholder="Enter weight" className="form-input" value={weight} onChange={(e) => setWeight(e.target.value)} />
+                        <input type="number" placeholder="Enter weight" className="form-input" value={weight} onChange={(e) => setWeight(e.target.value)} />
                     </div>
                     <div class="col-3 col-sm-12">
                         <button type="button" className="btn btn-primary" onClick={postCategory}>Add Category</button>

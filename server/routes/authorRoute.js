@@ -6,7 +6,7 @@ const { isAuth, isAdmin } = require("../auth");
 const router = express.Router();
 
 router.get("/", isAuth, isAdmin, async (req, res) => {
-    const authors = await Author.find();
+    const authors = await Author.find({}).select({ name: 1, image: 1 }).sort({ createdAt: "desc" }).exec();
     res.send(authors);
 });
 
@@ -23,7 +23,7 @@ router.get("/:id", isAuth, isAdmin, async (req, res) => {
     }
 });
 
-router.post("/", isAuth, isAdmin, async (req, res) => {
+router.post("/", isAuth, isAdmin, (req, res) => {
     const author = new Author({
         name: req.body.name,
         featured: req.body.featured,
@@ -31,12 +31,12 @@ router.post("/", isAuth, isAdmin, async (req, res) => {
         shortIntro: req.body.shortIntro,
         image: req.body.image
     });
-    const newAuthor = await author.save();
-    if (newAuthor) {
+    
+    author.save().then((newAuthor) => {
         res.status(201).send({ message: 'Author created successfully.', data: newAuthor });
-    } else {
+    }).catch(() => {
         res.status(500).send({ message: 'Could not create new author' });
-    }
+    });
 });
 
 router.patch("/:id", isAuth, isAdmin, (req, res) => {

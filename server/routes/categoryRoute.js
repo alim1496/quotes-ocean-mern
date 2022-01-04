@@ -7,7 +7,7 @@ const router = express.Router();
 
 
 router.get("/", isAuth, isAdmin, async (req, res) => {
-    const categories = await Category.find();
+    const categories = await Category.find({}).sort({ createdAt: "desc" }).exec();
     res.send(categories);
 });
 
@@ -24,17 +24,19 @@ router.get("/:id", isAuth, isAdmin, async (req, res) => {
     }
 });
 
-router.post("/", isAuth, isAdmin, async (req, res) => {
+router.post("/", isAuth, isAdmin, (req, res) => {
     const category = new Category({
         name: req.body.name,
         weight: req.body.weight
     });
-    const newCategory = await category.save();
-    if (newCategory) {
-        res.status(201).send({ message: 'Category created successfully.', data: newCategory });
-    } else {
-        res.status(500).send({ message: 'Could not create new category' });
-    }
+    category
+        .save()
+        .then((newCategory) => {
+            res.status(201).send({ message: 'Category created successfully.', data: newCategory });
+        })
+        .catch(() => {
+            res.status(500).send({ message: 'Could not create new category' });
+        });
 });
 
 router.patch("/:id", isAuth, isAdmin, (req, res) => {
