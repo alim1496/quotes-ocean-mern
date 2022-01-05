@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import axios from "axios";
-import Cookies from "js-cookie";
 import { config } from "../utils/api";
 
 const Login = () => {
@@ -16,6 +16,7 @@ const Login = () => {
     const login = (e) => {
         e.preventDefault();
         const { target } = e;
+        const history = useHistory();
         if (name === "" || password === "") return;
         target.classList.add("loading");
         const data = {
@@ -26,10 +27,13 @@ const Login = () => {
         setError(false);
         axios
             .post("/api/users/login", data, config)
-            .then(({ data: { token } }) => {
-                Cookies.set("token", token);
+            .then(({ data: { token, name } }) => {
+                localStorage.setItem("jwt-token", token);
                 setLoading(false);
                 setError(false);
+                window.user = name;
+                //window.location = "/admin";
+                history.push("/admin");
             })
             .catch(({response: { data }}) => {
                 setLoading(false);

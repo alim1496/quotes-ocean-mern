@@ -2,16 +2,16 @@ const express = require("express");
 const passport = require("passport");
 const User = require("../models/userModel");
 const ObjectId = require("mongoose").Types.ObjectId;
-const { getToken } = require("../auth");
+const { getToken, isAdmin } = require("../auth");
 
 const router = express.Router();
 
-router.post("/login", passport.authenticate("local"), (req, res) => {
+router.post("/login", passport.authenticate("local"), isAdmin, (req, res) => {
     User.findOne({ username: req.body.username }, (err, user) => {
         if (err) {
             res.status(500).send({ message: `something went wrong ${err}`});
         } else {
-            res.status(202).send({ message: "Logged in successfully", token: getToken(user) });
+            res.status(202).send({ message: "Logged in successfully", token: getToken(user), name: user.username });
         }
     });
 });

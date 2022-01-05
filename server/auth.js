@@ -2,12 +2,11 @@ const jwt = require("jsonwebtoken");
 const config = require("./config");
 
 const getToken = (user) => {
-    const { username, email, admin, salt } = user;
+    const { username, email, admin } = user;
     return jwt.sign({
         username,
         email,
-        admin,
-        salt
+        admin
     },
     config.JWT_SECRET,
     {
