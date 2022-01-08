@@ -49,4 +49,15 @@ router.patch("/:id", isAuth, isAdmin, (req, res) => {
         .catch((error) => res.status(500).send({ message: error }));
 });
 
+router.get("/find/author", isAuth, isAdmin, (req, res) => {
+    const name = req.query.name;
+    Author.find({ name: { $regex: ".*" + name + ".*", $options: "i" } })
+      .select({ name: 1 })
+      .exec()
+      .then((result) => {
+        res.status(200).json({ result });
+      })
+      .catch((err) => res.status(500).json({ error: err }));
+});
+
 module.exports = router;

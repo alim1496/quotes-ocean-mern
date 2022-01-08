@@ -9,6 +9,7 @@ const Authors = () => {
     const [intro, setIntro] = useState("");
     const [featured, setFeatured] = useState(false);
     const [authors, setAuthors] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         fetchAuthors();
@@ -26,7 +27,6 @@ const Authors = () => {
     };
 
     const addAuthor = (e) => {
-        const { target } = e;
         if(!name || !desc || !intro || !desc) return;
         const data = {
             name,
@@ -36,11 +36,11 @@ const Authors = () => {
         };
         
         if(url) data.image = url;
-        target.classList.add("loading");
+        setLoading(true);
         axios
             .post("/api/authors", data, config)
             .then(() => {
-                target.classList.remove("loading");
+                setLoading(false);
                 setName("");
                 setUrl("");
                 setFeatured(false);
@@ -49,7 +49,7 @@ const Authors = () => {
                 fetchAuthors();
             })
             .catch((error) => {
-                target.classList.remove("loading");
+                setLoading(false);
                 alert(error);
             });
 
@@ -81,7 +81,7 @@ const Authors = () => {
                         <i className="form-icon"/> Featured
                     </label>
                 </div>
-                <input type="submit" value="Add Author" className="btn btn-primary my-2" onClick={addAuthor} />
+                {loading ? <div className="loading my-2 w-100"></div> : <input type="submit" value="Add Author" className="btn btn-primary my-2" onClick={addAuthor} />}
             </form>
             <br />
             <div className="common-list">

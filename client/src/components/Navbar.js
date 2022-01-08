@@ -29,8 +29,8 @@ const Navbar = () => {
                     id="btn-logout"
                     className="btn btn-link"
                     onClick={() => {
-                    localStorage.removeItem("jwt-token");
-                    window.location = "/login";
+                        localStorage.removeItem("jwt-token");
+                        window.location = "/admin/login";
                     }}
                 >
                     Logout
