@@ -4,12 +4,13 @@ import { config } from "../utils/api";
 
 const Quotes = () => {
     const [title, setTitle] = useState("");
-    const [author, setAuthor] = useState({ name: "" });
+    const [author, setAuthor] = useState("");
     const [category, setCategory] = useState("");
     const [featured, setFeatured] = useState(false);
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState("");
     const [categories, setCategories] = useState([]);
+    const [options, setOptions] = useState([]);
 
     const fetchCategories = () => {
         axios.get("/api/categories", config).then(({ data }) => {
@@ -17,11 +18,50 @@ const Quotes = () => {
         })
     };
 
-    const fetchAuthors = () => {};
+    const searchAuthor = (e) => {
+        const {
+            target: { value },
+          } = e;
+          if (value.length < 3) return;
+      
+          setOptions([]);
+          axios
+            .get(
+              `/api/authors/find/author/?name=${value}`,
+              config
+            )
+            .then(({ data: { result } }) => setOptions(result));
+    };
+
+    const setAuthorOption = (e, option) => {
+        e.preventDefault();
+        document.querySelector("#quote-author").value = option.name;
+        setAuthor(option._id);
+        setOptions([]);
+    };
 
     const addQuote = () => {
-        console.log(status);
-        console.log(category);
+        const data = {
+            title,
+            featured,
+            status,
+            category,
+            author
+        };
+        setLoading(true);
+        axios.post("/api/quotes", data, config).then(() => {
+            setLoading(false);
+            setTitle("");
+            setStatus("");
+            setFeatured(false);
+            setCategory("");
+            document.querySelector("#quote-author").value = "";
+            document.querySelector("#quote-category").value = "";
+            document.querySelector("#quote-status").value = "";
+        }).catch((error) => {
+            setLoading(false);
+            alert(error);
+        });
     };
 
     return (
@@ -34,19 +74,33 @@ const Quotes = () => {
                 </div>
                 <div className="form-group col-8 col-sm-12">
                     <label htmlFor="quote-author" className="form-label">Author</label>
-                    <input type="text" placeholder="Socrates" id="quote-author" className="form-input" value={author.name} />
+                    <input type="text" placeholder="Socrates" id="quote-author" className="form-input" onChange={searchAuthor} />
+                </div>
+                <div className="col-10 col-sm-12 col-ml-auto d-flex">
+                    {options.length > 0 &&
+                        options.map((option, index) => {
+                        return (
+                            <span
+                                className="chip c-hand"
+                                key={index}
+                                onClick={(e) => setAuthorOption(e, option)}
+                            >
+                                {option.name}
+                            </span>
+                        );
+                    })}
                 </div>
                 <div className="form-group col-8 col-sm-12">
                     <label htmlFor="quote-category" className="form-label">Category</label>
-                    <select className="form-select" onClick={fetchCategories} onChange={(e) => setCategory(e.target.value)} value={category}>
+                    <select className="form-select" id="quote-category" onClick={fetchCategories} onChange={(e) => setCategory(e.target.value)} value={category}>
                         {categories && categories.map((_category, index) => (
                             <option key={index} value={_category._id}>{_category.name}</option>
                         ))}
                     </select>
                 </div>
                 <div className="form-group col-8 col-sm-12">
-                    <label className="form-label">Status</label>
-                    <select className="form-select" onChange={(e) => setStatus(e.target.value)}>
+                    <label className="form-label" htmlFor="quote-status">Status</label>
+                    <select className="form-select" id="quote-status" onChange={(e) => setStatus(e.target.value)}>
                         <option value="Pending">Pending</option>
                         <option value="Published">Published</option>
                         <option value="Rejected">Rejected</option>
