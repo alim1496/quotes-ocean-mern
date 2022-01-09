@@ -109,7 +109,7 @@ const Quotes = () => {
                 </div>
                 <div className="form-group col-8 col-sm-12">
                     <label htmlFor="quote-category" className="form-label">Category</label>
-                    <select className="form-select" id="quote-category" onClick={fetchCategories} onChange={(e) => setCategory(e.target.value)} value={category}>
+                    <select className="form-select" id="quote-category" onClick={fetchCategories} onChange={(e) => setCategory(e.target.value)}>
                         {categories && categories.map((_category, index) => (
                             <option key={index} value={_category._id}>{_category.name}</option>
                         ))}

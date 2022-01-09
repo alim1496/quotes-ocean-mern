@@ -11,6 +11,8 @@ const Authors = () => {
     const [featured, setFeatured] = useState(false);
     const [authors, setAuthors] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [prevAuthor, setPrevAuthor] = useState({});
+    const [editID, setEditID] = useState("");
 
     useEffect(() => {
         fetchAuthors();
@@ -29,6 +31,44 @@ const Authors = () => {
 
     const deleteAuthor = (id) => {
         axios.delete(`/api/authors/${id}`, config).then(() => fetchAuthors()).catch(err => alert(err));
+    };
+
+    const editAuthor = (id) => {
+        axios.get(`/api/authors/${id}`, config).then(({ data }) => {
+            const { name, featured, description, shortIntro, image } = data;
+            setEditID(id);
+            setPrevAuthor(data);
+            setName(name);
+            setFeatured(featured);
+            setDesc(description);
+            setIntro(shortIntro); 
+            if(image) setUrl(image);
+        });
+    };
+
+    const updateAuthor = () => {
+        let data = {};
+        if (name !== prevAuthor.name) data.name = name;
+        if (featured !== prevAuthor.featured) data.featured = featured;
+        if (desc !== prevAuthor.description) data.description = desc;
+        if (intro !== prevAuthor.shortIntro) data.shortIntro = intro;
+        if (url && url !== prevAuthor.image) data.image = url;
+
+        setLoading(true);
+        axios.patch(`/api/authors/${editID}`, data, config).then(() => {
+            setLoading(false);
+            setName("");
+            setUrl("");
+            setFeatured(false);
+            setDesc("");
+            setIntro("");
+            setEditID("");
+            setPrevAuthor({});
+            fetchAuthors();
+        }).catch((error) => {
+            setLoading(false);
+            alert(error);
+        });
     };
 
     const addAuthor = (e) => {
@@ -86,7 +126,7 @@ const Authors = () => {
                         <i className="form-icon"/> Featured
                     </label>
                 </div>
-                {loading ? <div className="loading my-2 w-100"></div> : <input type="submit" value="Add Author" className="btn btn-primary my-2" onClick={addAuthor} />}
+                {loading ? <div className="loading my-2 w-100"></div> : <input type="submit" value={`${editID ? 'Update' : 'Add'} Author`} className="btn btn-primary my-2" onClick={editID ? updateAuthor : addAuthor} />}
             </form>
             <br />
             <div className="common-list">
@@ -95,7 +135,7 @@ const Authors = () => {
                         <img src={author.image} alt="author" className="img-round" />
                         <div className="author-name mt-2">{author.name}</div>
                         <div className="d-flex">
-                            <TiEdit />
+                            <TiEdit onClick={() => editAuthor(author._id)} />
                             <TiDelete onClick={() => deleteAuthor(author._id)} />
                         </div>                    
                     </div>
