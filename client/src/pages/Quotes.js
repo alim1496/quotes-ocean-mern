@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { TiTick, TiTimes, TiEdit, TiDelete } from "react-icons/ti";
 import { config } from "../utils/api";
 
 const Quotes = () => {
@@ -11,6 +12,17 @@ const Quotes = () => {
     const [status, setStatus] = useState("");
     const [categories, setCategories] = useState([]);
     const [options, setOptions] = useState([]);
+    const [quotes, setQuotes] = useState([]);
+
+    useEffect(() => {
+        fetchQuotes();
+    }, []);
+
+    const fetchQuotes = () => {
+        axios.get("/api/quotes", config).then(({ data }) => {
+            setQuotes(data);
+        });
+    };
 
     const fetchCategories = () => {
         axios.get("/api/categories", config).then(({ data }) => {
@@ -40,6 +52,10 @@ const Quotes = () => {
         setOptions([]);
     };
 
+    const deleteQuote = (id) => {
+        axios.delete(`/api/quotes/${id}`, config).then(() => fetchQuotes()).catch(err => alert(err));
+    };
+
     const addQuote = () => {
         const data = {
             title,
@@ -58,6 +74,7 @@ const Quotes = () => {
             document.querySelector("#quote-author").value = "";
             document.querySelector("#quote-category").value = "";
             document.querySelector("#quote-status").value = "";
+            fetchQuotes();
         }).catch((error) => {
             setLoading(false);
             alert(error);
@@ -114,6 +131,30 @@ const Quotes = () => {
                 </div>
                 {loading ? <div className="loading my-2 w-100"></div> : <input type="submit" value="Add Quote" className="btn btn-primary my-2" onClick={addQuote} />}
             </form>
+            <br />
+            {quotes && (
+                <table>
+                    <tr>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Category</th>
+                        <th>Featured</th>
+                        <th>Actions</th>
+                    </tr>
+                    {quotes.map((quote, index) => (
+                        <tr key={index}>
+                            <td>{quote.title}</td>
+                            <td>{quote.author.name}</td>
+                            <td>{quote.category.name}</td>
+                            <td>{quote.featured ? <TiTick /> : <TiTimes />}</td>
+                            <td>
+                                <TiEdit />
+                                <TiDelete onClick={() => deleteQuote(quote._id)} />
+                            </td>
+                        </tr>
+                    ))}
+                </table>
+            )}
         </div>
     );
 };

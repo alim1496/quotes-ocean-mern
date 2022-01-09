@@ -6,7 +6,7 @@ const { isAuth, isAdmin } = require("../auth");
 const router = express.Router();
 
 router.get("/", isAuth, isAdmin, async (req, res) => {
-    const quotes = await Quote.find();
+    const quotes = await Quote.find({}).populate("author", { name: 1 }).populate("category", { name: 1 }).sort({ createdAt: "desc" }).exec();
     res.send(quotes);
 });
 
@@ -47,6 +47,14 @@ router.patch("/:id", isAuth, isAdmin, (req, res) => {
         .findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true })
         .then((quote) => res.send(quote))
         .catch((error) => res.status(500).send({ message: error }));
+});
+
+router.delete("/:id", isAuth, isAdmin, (req, res) => {
+    Quote.findByIdAndRemove(req.params.id).then(() => {
+        res.status(201).send({ message: "Deleted successfully" })
+    }).catch((error) => {
+        res.status(500).send({ message: error })
+    });
 });
 
 module.exports = router;
