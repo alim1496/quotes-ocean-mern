@@ -49,4 +49,12 @@ router.patch("/:id", isAuth, isAdmin, (req, res) => {
         .catch((error) => res.status(500).send({ message: error }));
 });
 
+router.delete("/:id", isAuth, isAdmin, (req, res) => {
+    Category.findByIdAndRemove(req.params.id).then(() => {
+        res.status(201).send({ message: "Deleted successfully" })
+    }).catch((error) => {
+        res.status(500).send({ message: error })
+    });
+});
+
 module.exports = router;

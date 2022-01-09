@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { TiDelete } from "react-icons/ti";
 import { config } from "../utils/api";
 
 const Categories = () => {
@@ -17,6 +18,10 @@ const Categories = () => {
             .then(({ data }) => {
                 setCategories(data);
             });
+    };
+
+    const deleteCategory = (id) => {
+        axios.delete(`/api/categories/${id}`, config).then(() => fetchCategory()).catch(err => alert(err));
     };
 
     const postCategory = (e) => {
@@ -60,6 +65,7 @@ const Categories = () => {
             <div className="common-list">
                 {categories && categories.map((category, index) => (
                     <div key={index} className="card max-200 mr-2 mt-2">
+                        <TiDelete className="p-absolute mt-1 ml-178" onClick={() => deleteCategory(category._id)}/>
                         <div className="card-header">
                             <div className="card-title">{category.name}</div>
                             <div className="card-subtitle">{category.weight}</div>

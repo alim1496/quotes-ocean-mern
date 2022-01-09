@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { TiEdit, TiDelete } from "react-icons/ti";
 import { config } from "../utils/api";
 
 const Authors = () => {
@@ -24,6 +25,10 @@ const Authors = () => {
             .catch(() => {
 
             });
+    };
+
+    const deleteAuthor = (id) => {
+        axios.delete(`/api/authors/${id}`, config).then(() => fetchAuthors()).catch(err => alert(err));
     };
 
     const addAuthor = (e) => {
@@ -88,7 +93,11 @@ const Authors = () => {
                 {authors && authors.map((author, index) => (
                     <div key={index} className="author-card max-200 mr-2 mt-2">
                         <img src={author.image} alt="author" className="img-round" />
-                        <div className="author-name mt-2">{author.name}</div>                       
+                        <div className="author-name mt-2">{author.name}</div>
+                        <div className="d-flex">
+                            <TiEdit />
+                            <TiDelete onClick={() => deleteAuthor(author._id)} />
+                        </div>                    
                     </div>
                 ))}
             </div>

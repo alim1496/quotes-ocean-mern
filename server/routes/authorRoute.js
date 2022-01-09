@@ -60,4 +60,12 @@ router.get("/find/author", isAuth, isAdmin, (req, res) => {
       .catch((err) => res.status(500).json({ error: err }));
 });
 
+router.delete("/:id", isAuth, isAdmin, (req, res) => {
+    Author.findByIdAndRemove(req.params.id).then(() => {
+        res.status(201).send({ message: "Deleted successfully" })
+    }).catch((error) => {
+        res.status(500).send({ message: error })
+    });
+});
+
 module.exports = router;
