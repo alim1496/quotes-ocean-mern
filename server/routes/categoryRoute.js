@@ -57,4 +57,15 @@ router.delete("/:id", isAuth, isAdmin, (req, res) => {
     });
 });
 
+router.get("/find/category", isAuth, isAdmin, (req, res) => {
+    const name = req.query.name;
+    Category.find({ name: { $regex: ".*" + name + ".*", $options: "i" } })
+      .select({ name: 1 })
+      .exec()
+      .then((result) => {
+        res.status(200).json({ result });
+      })
+      .catch((err) => res.status(500).json({ error: err }));
+});
+
 module.exports = router;

@@ -13,6 +13,8 @@ const Quotes = () => {
     const [categories, setCategories] = useState([]);
     const [options, setOptions] = useState([]);
     const [quotes, setQuotes] = useState([]);
+    const [prevQuote, setPrevQuote] = useState({});
+    const [editID, setEditID] = useState("");
 
     useEffect(() => {
         fetchQuotes();
@@ -22,12 +24,6 @@ const Quotes = () => {
         axios.get("/api/quotes", config).then(({ data }) => {
             setQuotes(data);
         });
-    };
-
-    const fetchCategories = () => {
-        axios.get("/api/categories", config).then(({ data }) => {
-            setCategories(data);
-        })
     };
 
     const searchAuthor = (e) => {
@@ -45,6 +41,21 @@ const Quotes = () => {
             .then(({ data: { result } }) => setOptions(result));
     };
 
+    const searchCategory = (e) => {
+        const {
+            target: { value },
+          } = e;
+          if (value.length < 3) return;
+      
+          setCategories([]);
+          axios
+            .get(
+              `/api/categories/find/category/?name=${value}`,
+              config
+            )
+            .then(({ data: { result } }) => setCategories(result));
+    };
+
     const setAuthorOption = (e, option) => {
         e.preventDefault();
         document.querySelector("#quote-author").value = option.name;
@@ -52,10 +63,33 @@ const Quotes = () => {
         setOptions([]);
     };
 
+    const setCategoryOption = (e, option) => {
+        e.preventDefault();
+        document.querySelector("#quote-category").value = option.name;
+        setCategory(option._id);
+        setCategories([]);
+    };
+
     const deleteQuote = (id) => {
         axios.delete(`/api/quotes/${id}`, config).then(() => fetchQuotes()).catch(err => alert(err));
     };
 
+    const editQuote = (id) => {
+        axios.get(`/api/quotes/${id}`, config).then(({ data }) => {
+            const { title, featured, status, category, author } = data;
+            setEditID(id);
+            setPrevQuote(data);
+            setTitle(title);
+            setStatus(status);
+            setFeatured(featured);
+            setCategory(category._id);
+            setAuthor(author._id);
+            document.querySelector("#quote-author").value = author.name;
+            document.querySelector("#quote-category").value = category.name;
+            document.querySelector("#quote-status").value = status;
+        });
+    };
+    
     const addQuote = () => {
         const data = {
             title,
@@ -65,20 +99,54 @@ const Quotes = () => {
             author
         };
         setLoading(true);
-        axios.post("/api/quotes", data, config).then(() => {
+        axios.post("/api/quotes", data, config).then(({ data: { message } }) => {
+            showMsg(message);
             setLoading(false);
-            setTitle("");
-            setStatus("");
-            setFeatured(false);
-            setCategory("");
-            document.querySelector("#quote-author").value = "";
-            document.querySelector("#quote-category").value = "";
-            document.querySelector("#quote-status").value = "";
+            cancelAll();
             fetchQuotes();
         }).catch((error) => {
             setLoading(false);
             alert(error);
         });
+    };
+
+    const updateQuote = () => {
+        let data = {};
+        if (title !== prevQuote.title) data.title = title;
+        if (featured !== prevQuote.featured) data.featured = featured;
+        if (status !== prevQuote.status) data.status = status;
+        if (category !== prevQuote.category._id) data.category = category;
+        if (author !== prevQuote.author._id) data.author = author;
+
+        setLoading(true);
+        axios.patch(`/api/quotes/${editID}`, data, config).then(() => {
+            setLoading(false);
+            cancelAll();
+            setEditID("");
+            setPrevQuote({});
+            fetchQuotes();
+        }).catch((error) => {
+            setLoading(false);
+            alert(error);
+        });
+    };
+
+    const cancelAll = () => {
+        setTitle("");
+        setStatus("");
+        setFeatured(false);
+        setCategory("");
+        setAuthor("");
+        document.querySelector("#quote-author").value = "";
+        document.querySelector("#quote-category").value = "";
+        document.querySelector("#quote-status").value = "";
+    };
+
+    const showMsg = (msg) => {
+        document.querySelector("#result-msg-quote").innerHTML = msg;
+        setTimeout(() => {
+            document.querySelector("#result-msg-quote").innerHTML = "";
+        }, 3000);
     };
 
     return (
@@ -109,11 +177,21 @@ const Quotes = () => {
                 </div>
                 <div className="form-group col-8 col-sm-12">
                     <label htmlFor="quote-category" className="form-label">Category</label>
-                    <select className="form-select" id="quote-category" onClick={fetchCategories} onChange={(e) => setCategory(e.target.value)}>
-                        {categories && categories.map((_category, index) => (
-                            <option key={index} value={_category._id}>{_category.name}</option>
-                        ))}
-                    </select>
+                    <input type="text" placeholder="History" id="quote-category" className="form-input" onChange={searchCategory} />
+                </div>
+                <div className="col-10 col-sm-12 col-ml-auto d-flex">
+                    {categories.length > 0 &&
+                        categories.map((option, index) => {
+                        return (
+                            <span
+                                className="chip c-hand"
+                                key={index}
+                                onClick={(e) => setCategoryOption(e, option)}
+                            >
+                                {option.name}
+                            </span>
+                        );
+                    })}
                 </div>
                 <div className="form-group col-8 col-sm-12">
                     <label className="form-label" htmlFor="quote-status">Status</label>
@@ -129,16 +207,24 @@ const Quotes = () => {
                         <i className="form-icon"/> Featured
                     </label>
                 </div>
-                {loading ? <div className="loading my-2 w-100"></div> : <input type="submit" value="Add Quote" className="btn btn-primary my-2" onClick={addQuote} />}
+                <div className="d-flex">
+                    {loading
+                        ? <div className="loading my-2 w-100"></div> 
+                        : <input type="submit" value={`${editID ? 'Update' : 'Add'} Quote`} className="btn btn-primary my-2" onClick={editID ? updateQuote : addQuote} />}
+                    <button type="button" className="btn btn-link mx-2 my-2" onClick={cancelAll}>Cancel</button>
+                    <div className="mx-2 my-2" id="result-msg-quote"></div>
+                </div>
+                
             </form>
             <br />
             {quotes && (
-                <table>
+                <table className="my-2">
                     <tr>
                         <th>Title</th>
                         <th>Author</th>
                         <th>Category</th>
                         <th>Featured</th>
+                        <th>Status</th>
                         <th>Actions</th>
                     </tr>
                     {quotes.map((quote, index) => (
@@ -147,14 +233,16 @@ const Quotes = () => {
                             <td>{quote.author.name}</td>
                             <td>{quote.category.name}</td>
                             <td>{quote.featured ? <TiTick /> : <TiTimes />}</td>
+                            <td>{quote.status}</td>
                             <td>
-                                <TiEdit />
+                                <TiEdit onClick={() => editQuote(quote._id)} />
                                 <TiDelete onClick={() => deleteQuote(quote._id)} />
                             </td>
                         </tr>
                     ))}
                 </table>
             )}
+            <br />
         </div>
     );
 };

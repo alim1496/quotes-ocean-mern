@@ -84,20 +84,31 @@ const Authors = () => {
         setLoading(true);
         axios
             .post("/api/authors", data, config)
-            .then(() => {
+            .then(({ message }) => {
+                showMsg(message);
                 setLoading(false);
-                setName("");
-                setUrl("");
-                setFeatured(false);
-                setDesc("");
-                setIntro("");
+                cancelAll();
                 fetchAuthors();
             })
             .catch((error) => {
                 setLoading(false);
                 alert(error);
             });
+    };
 
+    const showMsg = (msg) => {
+        document.querySelector("#result-msg").innerHTML = msg;
+        setTimeout(() => {
+            document.querySelector("#result-msg").innerHTML = "";
+        }, 3000);
+    };
+
+    const cancelAll = () => {
+        setName("");
+        setUrl("");
+        setFeatured(false);
+        setDesc("");
+        setIntro("");
     };
 
     return (
@@ -126,7 +137,12 @@ const Authors = () => {
                         <i className="form-icon"/> Featured
                     </label>
                 </div>
-                {loading ? <div className="loading my-2 w-100"></div> : <input type="submit" value={`${editID ? 'Update' : 'Add'} Author`} className="btn btn-primary my-2" onClick={editID ? updateAuthor : addAuthor} />}
+                <div className="d-flex">
+                    {loading ? <div className="loading my-2 w-100"></div> : <input type="submit" value={`${editID ? 'Update' : 'Add'} Author`} className="btn btn-primary my-2" onClick={editID ? updateAuthor : addAuthor} />}
+                    <button type="button" className="btn btn-link mx-2 my-2" onClick={cancelAll}>Cancel</button>
+                    <div className="mx-2 my-2" id="result-msg"></div>
+                </div>
+                
             </form>
             <br />
             <div className="common-list">
@@ -141,6 +157,7 @@ const Authors = () => {
                     </div>
                 ))}
             </div>
+            <br />
         </div>
     );
 };
