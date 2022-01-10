@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { TiEdit, TiDelete } from "react-icons/ti";
 import { config } from "../utils/api";
+import fallback from "../assets/empty.png";
 
 const Authors = () => {
     const [name, setName] = useState("");
@@ -13,6 +14,7 @@ const Authors = () => {
     const [loading, setLoading] = useState(false);
     const [prevAuthor, setPrevAuthor] = useState({});
     const [editID, setEditID] = useState("");
+    const [page, setPage] = useState(1);
 
     useEffect(() => {
         fetchAuthors();
@@ -20,7 +22,7 @@ const Authors = () => {
 
     const fetchAuthors = () => {
         axios
-            .get("/api/authors", config)
+            .get(`/api/authors/?page=${page}&limit=8`, config)
             .then(({ data }) => {
                 setAuthors(data);
             })
@@ -148,7 +150,14 @@ const Authors = () => {
             <div className="common-list">
                 {authors && authors.map((author, index) => (
                     <div key={index} className="author-card max-200 mr-2 mt-2">
-                        <img src={author.image} alt="author" className="img-round" />
+                        <img 
+                            src={author.image} 
+                            alt="author" 
+                            className="img-round"
+                            onError={(e) => {
+                                e.target.src = fallback;
+                            }}
+                        />
                         <div className="author-name mt-2">{author.name}</div>
                         <div className="d-flex">
                             <TiEdit onClick={() => editAuthor(author._id)} />

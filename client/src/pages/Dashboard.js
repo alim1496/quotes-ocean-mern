@@ -25,7 +25,7 @@ const Dashboard = () => {
     return (
         <div className="container grid-lg common-margin">
             <h4>Welcome {localStorage.getItem("user")}</h4>
-            <p>{new Date().toLocaleString() + ""}</p>
+            <p>{new Date().toLocaleDateString() + ""}</p>
             <div className="d-flex">
                 <div className="card max-200 mr-2 mt-2">
                     <div className="card-header">

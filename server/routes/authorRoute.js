@@ -6,7 +6,16 @@ const { isAuth, isAdmin } = require("../auth");
 const router = express.Router();
 
 router.get("/", isAuth, isAdmin, async (req, res) => {
-    const authors = await Author.find({}).select({ name: 1, image: 1 }).sort({ createdAt: "desc" }).exec();
+    const { page, limit } = req.query;
+    console.log(page);
+    console.log(limit);
+    const authors = await Author
+                            .find({})
+                            .select({ name: 1, image: 1 })
+                            .sort({ createdAt: "desc" })
+                            .limit(limit)
+                            .skip((page - 1) * limit)
+                            .exec();
     res.send(authors);
 });
 
