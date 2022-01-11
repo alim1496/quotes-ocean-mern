@@ -5,6 +5,8 @@ import { config } from "../utils/api";
 import fallback from "../assets/empty.png";
 
 const Authors = () => {
+    const limit = 8;
+    var page = 1;
     const [name, setName] = useState("");
     const [url, setUrl] = useState("");
     const [desc, setDesc] = useState("");
@@ -14,7 +16,6 @@ const Authors = () => {
     const [loading, setLoading] = useState(false);
     const [prevAuthor, setPrevAuthor] = useState({});
     const [editID, setEditID] = useState("");
-    const [page, setPage] = useState(1);
 
     useEffect(() => {
         fetchAuthors();
@@ -22,13 +23,19 @@ const Authors = () => {
 
     const fetchAuthors = () => {
         axios
-            .get(`/api/authors/?page=${page}&limit=8`, config)
+            .get(`/api/authors/?page=${page}&limit=${limit}`, config)
             .then(({ data }) => {
-                setAuthors(data);
+                setAuthors(old => [...old, ...data]);
             })
             .catch(() => {
 
             });
+    };
+
+    const fetchMore = () => {
+        page = page + 1;
+        console.log(`page is ${page}`);
+        fetchAuthors();
     };
 
     const deleteAuthor = (id) => {
@@ -86,7 +93,7 @@ const Authors = () => {
         setLoading(true);
         axios
             .post("/api/authors", data, config)
-            .then(({ message }) => {
+            .then(({ data: { message } }) => {
                 showMsg(message);
                 setLoading(false);
                 cancelAll();
@@ -165,6 +172,12 @@ const Authors = () => {
                         </div>                    
                     </div>
                 ))}
+            </div>
+            <br />
+            <div>
+                {authors && authors.length >= limit && (
+                    <button type="button" className="btn btn-link" onClick={fetchMore}>Show More</button>
+                )}
             </div>
             <br />
         </div>

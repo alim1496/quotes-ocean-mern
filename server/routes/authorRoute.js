@@ -7,14 +7,14 @@ const router = express.Router();
 
 router.get("/", isAuth, isAdmin, async (req, res) => {
     const { page, limit } = req.query;
-    console.log(page);
-    console.log(limit);
+    const p = Number(page);
+    const l = Number(limit);
     const authors = await Author
                             .find({})
                             .select({ name: 1, image: 1 })
                             .sort({ createdAt: "desc" })
-                            .limit(limit)
-                            .skip((page - 1) * limit)
+                            .limit(l)
+                            .skip((p - 1) * l)
                             .exec();
     res.send(authors);
 });
